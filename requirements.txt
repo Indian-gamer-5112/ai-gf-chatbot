@@ -1,2 +1,7 @@
 flask
 torch
+requests
+numpy
+tqdm
+transformers
+datasets
