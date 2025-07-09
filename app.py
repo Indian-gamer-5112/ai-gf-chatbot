@@ -1,18 +1,17 @@
 from flask import Flask, request, jsonify
-import os, requests, torch, pickle
+import os, torch, pickle
 from nanoGPT.model import GPT, GPTConfig
 
-# Auto-download ckpt.pt from Google Drive if missing
+# Auto-download ckpt.pt from Google Drive using gdown
 def download_model():
-    url = "https://drive.google.com/uc?id=1-8qve0TOFVn46pRaqeDfxIkn_o_KBa--&export=download"
+    import gdown
+    url = "https://drive.google.com/uc?id=1-8qve0TOFVn46pRaqeDfxIkn_o_KBa--"
     out_path = "out_ai_gf/ckpt.pt"
     os.makedirs("out_ai_gf", exist_ok=True)
     if not os.path.exists(out_path):
         print("Downloading ckpt.pt from Google Drive...")
-        r = requests.get(url)
-        with open(out_path, "wb") as f:
-            f.write(r.content)
-        print("Download complete.")
+        gdown.download(url, out_path, quiet=False)
+        print("✅ Download complete.")
 
 download_model()
 
@@ -22,7 +21,7 @@ with open("out_ai_gf/config.pkl", "rb") as f:
 
 model = GPT(GPTConfig(**model_args))
 
-# ✅ Fix for PyTorch 2.6+ — set weights_only=False
+# ✅ Fix for PyTorch 2.6+
 checkpoint = torch.load("out_ai_gf/ckpt.pt", map_location="cpu", weights_only=False)
 model.load_state_dict(checkpoint["model"])
 model.eval()
