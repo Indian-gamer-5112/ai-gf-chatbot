@@ -21,9 +21,15 @@ with open("out_ai_gf/config.pkl", "rb") as f:
 
 model = GPT(GPTConfig(**model_args))
 
-# ✅ Fix for PyTorch 2.6+
+# ✅ Fix for PyTorch 2.6+ and key mismatch (ln_1 → ln1)
 checkpoint = torch.load("out_ai_gf/ckpt.pt", map_location="cpu", weights_only=False)
-model.load_state_dict(checkpoint["model"])
+
+fixed_state_dict = {}
+for k, v in checkpoint["model"].items():
+    new_key = k.replace("ln_1", "ln1").replace("ln_2", "ln2")
+    fixed_state_dict[new_key] = v
+
+model.load_state_dict(fixed_state_dict)
 model.eval()
 
 # Load tokenizer info
@@ -49,4 +55,5 @@ def chat():
     return jsonify({"response": reply})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))  # Use PORT env var (Render default)
+    app.run(host="0.0.0.0", port=port)
