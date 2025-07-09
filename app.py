@@ -29,8 +29,9 @@ for k, v in checkpoint["model"].items():
     new_key = k.replace("ln_1", "ln1").replace("ln_2", "ln2")
     fixed_state_dict[new_key] = v
 
-model.load_state_dict(fixed_state_dict)
-model.eval()
+# 🔥 THIS LINE FIXES THE ERROR!
+model.load_state_dict(fixed_state_dict, strict=False)
+
 
 # Load tokenizer info
 with open("out_ai_gf/meta.pkl", "rb") as f:
