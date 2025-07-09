@@ -21,7 +21,10 @@ with open("out_ai_gf/config.pkl", "rb") as f:
     model_args = pickle.load(f)
 
 model = GPT(GPTConfig(**model_args))
-model.load_state_dict(torch.load("out_ai_gf/ckpt.pt", map_location="cpu"))
+
+# ✅ Fix for PyTorch 2.6+ — set weights_only=False
+checkpoint = torch.load("out_ai_gf/ckpt.pt", map_location="cpu", weights_only=False)
+model.load_state_dict(checkpoint["model"])
 model.eval()
 
 # Load tokenizer info
